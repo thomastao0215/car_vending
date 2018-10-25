@@ -16,24 +16,19 @@ io.on('connection', function (socket) {
   });
 });
 
-var SerialPort = require("serialport").SerialPort
-var serialPort = new SerialPort("/COM4", {
-  baudrate: 9600
-}, false); // this is the openImmediately flag [default is true]
+var SerialPort = require("serialport")
+var port = new SerialPort("/COM4", {
+  baudRate: 9600
+}); 
+// Read data that is available but keep the stream in "paused mode"
+port.on('readable', function () {
+  console.log('Data:', port.read())
+})
 
-serialPort.open(function (error) {
-  if ( error ) {
-    console.log('failed to open: '+error);
-  } else {
-    console.log('open');
-    serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
-    });
-    serialPort.write("ls\n", function(err, results) {
-      console.log('err ' + err);
-      console.log('results ' + results);
-    });
-  }
-});
+// Switches the port into "flowing mode"
+port.on('data', function (data) {
+  console.log('Data:', data)
+})
 
-
+// Pipe the data into another stream (like a parser or standard out)
+const lineStream = port.pipe(new Readline())
