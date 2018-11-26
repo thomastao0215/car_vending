@@ -9,6 +9,19 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+function sendSync(port, src) {
+    return new Promise((resolve, reject) => {
+        port.write(src);
+        port.once('data', (data) => {
+            resolve(data.toString());
+        });
+
+        port.once('error', (err) => {
+            reject(err);
+        });
+    });
+}
+
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
   socket.on('my other event', function (data) {
@@ -18,17 +31,13 @@ io.on('connection', function (socket) {
 
 var SerialPort = require("serialport")
 var port = new SerialPort("/COM4", {
-  baudRate: 9600
+  baudRate: 11200
 }); 
-// Read data that is available but keep the stream in "paused mode"
-port.on('readable', function () {
-  console.log('Data:', port.read())
-})
 
-// Switches the port into "flowing mode"
-port.on('data', function (data) {
-  console.log('Data:', data)
-})
+sendSync(port, 'STAT\n').then((data) => {
+    //receive data
+  console.log(data)
+});
 
-// Pipe the data into another stream (like a parser or standard out)
-const lineStream = port.pipe(new Readline())
+
+
