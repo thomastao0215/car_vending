@@ -14,7 +14,7 @@ SerialPort.list().then( ports => {
      console.log(command);
       if (command){
 
-        myPort.write(command, function(err) {
+        myPort.write(command.command, function(err) {
           if (err) {
             return console.log('Error on write: ', err.message)
           }
@@ -22,6 +22,7 @@ SerialPort.list().then( ports => {
 
         myPort.on('data',function(res){
           var resultx  =res.toString()
+		console.log(resultx)
           socket.emit('result', { result: resultx });
 
         })

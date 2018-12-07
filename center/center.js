@@ -2,7 +2,6 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var bodyParser = require("body-parser");
-var result = []
 server.listen(8080);
 // WARNING: app.listen(80) will NOT work here!
 var socket
@@ -20,18 +19,20 @@ app.get('/', function (req, res) {
 });
 
 app.post('/outstock',function(req,res){
-
+  let resultX = []
   var products = req.body.products
   console.log(products)
   for (var i=0;i<products.length;i++){
     for (var j=0;j<products[i].count;j++ ){
       socket.emit('command', { command: products[i].command });
       socket.on('result', function (data) {
-        result.push(data)
+
+        resultX.push(data)
       });
     }
   }
+  console.log(resultX)
 
-  res.json({data:{result:result}})
+  res.json({result:resultX})
 
 })
